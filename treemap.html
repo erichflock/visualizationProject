@@ -27,7 +27,7 @@
             .round(true)
             .paddingInner(1);
 
-        d3.json("usaNewsEmotion.json", function (error, data) {
+        d3.json("data/usaNewsEmotion.json", function (error, data) {
             if (error) throw error;
 
             var root = d3.hierarchy(data)
