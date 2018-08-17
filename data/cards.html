@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+        .card {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            width: 50%;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            padding: 2px 16px;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            padding-left: 5px;
+    </style>
+</head>
+<body>
+
+<h2>Link News + Country + Emotion</h2>
+
+<div class="card">
+    <div class="container">
+        <!--<h4> Title </h4>-->
+        <!--<p>url</p>-->
+    <!--</div>-->
+
+    <!--<div class="box">-->
+        <div><strong>Website:</strong></div>
+        <div class="url_info"></div>
+        <div><strong>Title:</strong></div>
+        <div class="title_info"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function cardNewsUrl(data) {
+
+        // dataset preparation
+        function agg_day(leaves) {
+            var title = leaves.map(function (d) {
+                return d['Title'];
+
+            });
+            var url = leaves.map(function (d) {
+                return d['DocumentIdentifier'];
+
+            });
+            return {
+                'Title': title,
+                'DocumentIdentifier': url
+            };
+        }
+
+        var nested = d3.nest()
+            .key(d => d['Date'])
+            .key(d => d['Country'])
+            .key(d => d['Emotion'])
+            .rollup(agg_day)
+            .entries(data);
+
+        let updateCards = (_date, _country, _emotion) => {
+            let filteredByDate = nested.filter(day => day.key === _date);
+            let filteredByCountry = filteredByDate[0].values.filter(country => country.key === _country);
+            let filteredByEmotion = filteredByCountry[0].values.filter(emotion => emotion.key === _emotion);
+
+
+            var i = 0;
+            var len = filteredByEmotion[0].values.DocumentIdentifier.length;
+
+            var text = "";
+            var urlElem = document.querySelector(".url_info");
+            for (; i < len; i++) {
+                console.log(i)
+                text += filteredByEmotion[0].values.DocumentIdentifier[1];
+                console.log(text)
+                urlElem.innerHTML = "<a href='" + filteredByEmotion[0].values.DocumentIdentifier[i] + "'>" + filteredByEmotion[0].values.DocumentIdentifier[i] + "</a>"
+                var titElem = document.querySelector(".title_info");
+                titElem.innerHTML =  filteredByEmotion[0].values.Title[i]  + "<br/>";
+            }
+
+        };
+
+        // https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form
+
+        updateCards('2018-08-01', 'USA', 'captivation');
+
+        // console.log(nested);
+
+    }
+
+    d3.csv("FINAL_Example_resultdata_0102_sm_title.csv", d => {
+        d['DocumentIdentifier'] = d['DocumentIdentifier'];
+        d['Title'] = d['Title'];
+        d['Date'] = d['Date'];
+        d['Country'] = d['Country'];
+        d['Emotion  '] = d['Emotion'];
+        return d;
+    }, cardNewsUrl);
+
+</script>
+</body>
+</html>
