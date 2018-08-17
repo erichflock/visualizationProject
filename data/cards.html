@@ -9,14 +9,33 @@
             transition: 0.3s;
             width: 50%;
         }
+        /*.card_container {*/
+            /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);*/
+            /*transition: 0.3s;*/
+            /*width: 100%;*/
+        /*}*/
+        .card_container{
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+            -webkit-perspective: 1000px;
+            perspective: 1000px;
+        }
 
-        .card:hover {
+        .card_container:hover {
             box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
         }
 
         .container {
             padding: 2px 16px;
+            display: grid;
+
         }
+        .title {
+            font-weight: bold;
+        }
+
+
+
 
         body {
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -30,18 +49,7 @@
 
 <h2>Link News + Country + Emotion</h2>
 
-<div class="card">
-    <div class="container">
-        <!--<h4> Title </h4>-->
-        <!--<p>url</p>-->
-    <!--</div>-->
-
-    <!--<div class="box">-->
-        <div><strong>Website:</strong></div>
-        <div class="url_info"></div>
-        <div><strong>Title:</strong></div>
-        <div class="title_info"></div>
-    </div>
+<div id="card" class="card"></br>
 </div>
 
 <script type="text/javascript">
@@ -79,26 +87,52 @@
 
             var i = 0;
             var len = filteredByEmotion[0].values.DocumentIdentifier.length;
-
-            var text = "";
-            var urlElem = document.querySelector(".url_info");
+            var links = filteredByEmotion[0].values.DocumentIdentifier;
+            var title = filteredByEmotion[0].values.Title;
             for (; i < len; i++) {
-                console.log(i)
-                text += filteredByEmotion[0].values.DocumentIdentifier[1];
-                console.log(text)
-                urlElem.innerHTML = "<a href='" + filteredByEmotion[0].values.DocumentIdentifier[i] + "'>" + filteredByEmotion[0].values.DocumentIdentifier[i] + "</a>"
-                var titElem = document.querySelector(".title_info");
-                titElem.innerHTML =  filteredByEmotion[0].values.Title[i]  + "<br/>";
+
+                var card_container = document.createElement('div');
+                card_container.setAttribute("class", 'card_container')
+                var container = document.createElement("div");
+                var link_txt = document.createElement('div');
+                link_txt.appendChild(document.createTextNode("Link:"));
+                link_txt.appendChild(document.createElement("br"));
+                link_txt.setAttribute("class", 'title' );
+                container.appendChild(link_txt);
+
+                var result = links[i]
+                var url = document.createElement('a');
+                var t_url = document.createTextNode(links[i]);
+                url.setAttribute("href", result);
+                url.appendChild(t_url);
+                container.appendChild(document.body.appendChild(url));
+                container.appendChild(document.createElement("br"));
+
+                var title_txt = document.createElement('div');
+                title_txt.appendChild(document.createTextNode("Title:"));
+                title_txt.appendChild(document.createElement("br"));
+                title_txt.setAttribute("class", 'title' );
+                container.appendChild(title_txt);
+
+                container.appendChild(document.createTextNode(title[i]));
+                container.appendChild(document.createElement("br"));
+                container.setAttribute("class", 'container' );
+                card_container.appendChild(container);
+
+                var element = document.getElementById("card");
+                element.appendChild(document.createElement("br"));
+                element.appendChild(card_container);
+
             }
 
         };
 
+
         // https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form
 
-        updateCards('2018-08-01', 'USA', 'captivation');
+        updateCards('2018-08-01', 'USA', 'ambiguous-expectation');
 
         // console.log(nested);
-
     }
 
     d3.csv("FINAL_Example_resultdata_0102_sm_title.csv", d => {
