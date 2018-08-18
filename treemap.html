@@ -23,7 +23,7 @@
         var country = sessionStorage.getItem("country");
 
         // read, filter and select only the Emotion and Count columns from the data
-        d3.csv("data/resultdata_0102_sm.csv", function(data) {
+        d3.csv("data/FINAL_Example_resultdata_0102_sm_title.csv", function(data) {
 
             var dataFiltered = data.filter(function (d) {
                 if (d["Country"] == country) {
@@ -87,7 +87,7 @@
                     }
                 })
                 .on("click", function(d) {
-                    window.open("cards.html" ,"cards", "resizable=yes,height=600, width=1000");
+                    window.open("data/cards.html" ,"cards", "resizable=yes,height=600, width=1000");
                 })
                 .title(country)
                 .select("#viz")

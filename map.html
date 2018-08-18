@@ -112,10 +112,17 @@
 
                     // change the fill according to found country
                     svg.selectAll('path')
-                        .style('fill', setColor);
+                        .style('fill', setColor)
+                        .on('click', function(d){
+                            var day = datePicker.value;
+                            console.log(day);
+                            var countryName = d.properties.name;
+                            console.log(countryName);
+                            sessionStorage.setItem("country", countryName);
+                            window.open("treemap.html", "Treemap", "resizable=yes,height=600, width=1000");
+                    })
                 }
             }
-
             updateCountries('2018-08-01');
             sumbitButton.addEventListener('click', e => updateCountries(datePicker.value))
         }
