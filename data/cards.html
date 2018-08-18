@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+
+        @import url('https://fonts.googleapis.com/css?family=Roboto');
+
+        h1{
+            font-size: 2.5rem;
+            font-family: 'Roboto', sans-serif;
+            color: #444;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .wrapper{
+            width: 90%;
+            margin: 0 auto;
+            max-width: 80rem;
+        }
+
+        .cols{
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            justify-content: center;
+        }
+
+        .col{
+            width: calc(25% - 2rem);
+            margin: 1rem;
+            cursor: pointer;
+        }
+
+        .container{
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+            -webkit-perspective: 1000px;
+            perspective: 1000px;
+        }
+
+        .front,
+        .back{
+            background-size: cover;
+            background-position: center;
+            -webkit-transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            -o-transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1), -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            text-align: center;
+            min-height: 280px;
+            height: auto;
+            border-radius: 10px;
+            color: #fff;
+        }
+
+        .back{
+            background: #cedce7;
+            background: -webkit-linear-gradient(45deg,  #cedce7 0%,#596a72 100%);
+            background: -o-linear-gradient(45deg,  #cedce7 0%,#596a72 100%);
+            background: linear-gradient(45deg,  #cedce7 0%,#596a72 100%);
+        }
+
+        .front:after{
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            content: '';
+            display: block;
+            opacity: .6;
+            background-color: #000;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 10px;
+        }
+        .container:hover .front,
+        .container:hover .back{
+            -webkit-transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            -o-transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1), -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+
+        .back{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .inner{
+            -webkit-transform: translateY(-50%) translateZ(60px) scale(0.94);
+            transform: translateY(-50%) translateZ(60px) scale(0.94);
+            top: 50%;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            outline: 1px solid transparent;
+            -webkit-perspective: inherit;
+            perspective: inherit;
+            z-index: 2;
+        }
+        .inner_back{
+            -webkit-transform: translateY(-50%) translateZ(60px) scale(0.94);
+            transform: translateY(-50%) translateZ(60px) scale(0.94);
+            top: 50%;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            outline: 1px solid transparent;
+            -webkit-perspective: inherit;
+            perspective: inherit;
+            z-index: 2;
+        }
+
+        .container .back{
+            -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .container .front{
+            -webkit-transform: rotateY(0deg);
+            transform: rotateY(0deg);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .container:hover .back{
+            -webkit-transform: rotateY(0deg);
+            transform: rotateY(0deg);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .container:hover .front{
+            -webkit-transform: rotateY(-180deg);
+            transform: rotateY(-180deg);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .front .inner p{
+            /*font-size: 1rem;*/
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .front .inner p:after{
+            /*content: '';*/
+            width: 4rem;
+            height: 2px;
+            position: absolute;
+            background: #C6D4DF;
+            display: block;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            bottom: -.75rem;
+        }
+
+        .front .inner span{
+            color: rgba(255,255,255,0.7);
+            font-family: 'Roboto', sans-serif;
+            font-weight: 300;
+        }
+
+        @media screen and (max-width: 64rem){
+            .col{
+                width: calc(33.333333% - 2rem);
+            }
+        }
+
+        @media screen and (max-width: 48rem){
+            .col{
+                width: calc(40% - 1rem);
+            }
+        }
+
+        @media screen and (max-width: 32rem){
+            .col{
+                width: 100%;
+                margin: 0 0 2rem 0;
+            }
+        }
+        /*//https://codepen.io/tyrellrummage/pen/wqGgLO*/
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+<h2>Link News + Country + Emotion</h2>
+    <div id="card" class="cols"></br>
+</div>
+</div>
+
+<script type="text/javascript">
+
+    function cardNewsUrl(data) {
+
+        // dataset preparation
+        function agg_day(leaves) {
+            var title = leaves.map(function (d) {
+                return d['Title'];
+
+            });
+            var url = leaves.map(function (d) {
+                return d['DocumentIdentifier'];
+
+            });
+            return {
+                'Title': title,
+                'DocumentIdentifier': url
+            };
+        }
+
+        var nested = d3.nest()
+            .key(d => d['Date'])
+            .key(d => d['Country'])
+            .key(d => d['Emotion'])
+            .rollup(agg_day)
+            .entries(data);
+
+        let updateCards = (_date, _country, _emotion) => {
+            let filteredByDate = nested.filter(day => day.key === _date);
+            let filteredByCountry = filteredByDate[0].values.filter(country => country.key === _country);
+            let filteredByEmotion = filteredByCountry[0].values.filter(emotion => emotion.key === _emotion);
+
+
+            var i = 0;
+            var len = filteredByEmotion[0].values.DocumentIdentifier.length;
+            var links = filteredByEmotion[0].values.DocumentIdentifier;
+            var title = filteredByEmotion[0].values.Title;
+            for (; i < len; i++) {
+
+                var col = document.createElement('div');
+                col.setAttribute("class", 'col')
+                var container = document.createElement("div");
+                container.setAttribute("class", 'container' );
+                var front = document.createElement("div");
+                front.setAttribute("class", 'front' );
+                var inner = document.createElement("div");
+                inner.setAttribute("class", 'inner' );
+
+
+                inner.appendChild(document.createTextNode(title[i]));
+                inner.appendChild(document.createElement("br"));
+                inner.appendChild(document.createElement("br"));
+                var title_txt = document.createElement('p');
+                inner.appendChild(title_txt);
+
+
+                var back = document.createElement("div");
+                back.setAttribute("class", 'back' );
+
+                var innerback = document.createElement("div");
+                innerback.setAttribute("class", 'innerback' );
+
+                var link_txt = document.createElement('p');
+                innerback.appendChild(link_txt);
+
+                var result = links[i]
+                var url = document.createElement('a');
+                var t_url = document.createTextNode(links[i]);
+                url.setAttribute("href", result);
+                url.appendChild(t_url);
+                innerback.appendChild(document.body.appendChild(url));
+                innerback.appendChild(document.createElement("br"));
+
+                back.appendChild(innerback);
+                front.appendChild(inner);
+                container.appendChild(front);
+                container.appendChild(back);
+                col.appendChild(container);
+
+                var element = document.getElementById("card");
+                element.appendChild(document.createElement("br"));
+                element.appendChild(col);
+
+            }
+
+        };
+
+        // https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form
+
+        updateCards('2018-08-01', 'USA', 'captivation');
+
+    }
+
+    d3.csv("FINAL_Example_resultdata_0102_sm_title.csv", d => {
+        d['DocumentIdentifier'] = d['DocumentIdentifier'];
+        d['Title'] = d['Title'];
+        d['Date'] = d['Date'];
+        d['Country'] = d['Country'];
+        d['Emotion  '] = d['Emotion'];
+        return d;
+    }, cardNewsUrl);
+
+</script>
+</body>
+</html>
