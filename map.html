@@ -94,6 +94,7 @@ Date: <input type="date" name="field1" id="field1" max="2018-08-31" min="2018-01
         };
 
         setColors(_r, _g, _b);
+
         this.getColors = function() {
             var colors = {
                 r: r,
@@ -174,7 +175,6 @@ Date: <input type="date" name="field1" id="field1" max="2018-08-31" min="2018-01
 
     d3.json("https://s3-us-west-2.amazonaws.com/vida-public/geo/world-topo-min.json", function(error, world) {
         var countries = topojson.feature(world, world.objects.countries).features;
-
         svg.append("path")
             .datum(graticule)
             .attr("class", "choropleth")
@@ -188,7 +188,6 @@ Date: <input type="date" name="field1" id="field1" max="2018-08-31" min="2018-01
             .attr("d", path);
 
         var country = g.selectAll(".country").data(countries);
-
         country.enter().insert("path")
             .attr("class", "country")
             .attr("d", path)
@@ -204,7 +203,10 @@ Date: <input type="date" name="field1" id="field1" max="2018-08-31" min="2018-01
                     return "#CFE9F1";
                 }
             })
-            .on("click", function() {
+            .on("click", function(d) {
+
+                var countryName = d.properties.name;
+                sessionStorage.setItem("country", countryName);
                 window.open("treemap.html" ,"Treemap", "resizable=yes,height=600, width=1000");
             //     var html = "";
             //
