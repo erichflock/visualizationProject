@@ -12,6 +12,8 @@
 <!-- load D3plus after D3js -->
 <script src="//d3plus.org/js/d3plus.js"></script>
 
+<script src="https://d3plus.org/js/d3plus.v2.0.0-alpha.17.full.min.js"></script>
+
 <!-- create container element for visualization -->
 <div id="viz"></div>
 
@@ -35,8 +37,8 @@
                 return {
                     //Country: d.Country,
                     emotion: d.Emotion,
-                    count: Number(d.Count), // to the treemap plot work properly, this value must be a number and not a String
-                    color: getRandomColor().toString() // color variable added in order to have customized colors for each emotion
+                    news: Number(d.Count), // to the treemap plot work properly, this value must be a number and not a String
+                    //color: getRandomColor().toString() // color variable added in order to have customized colors for each emotion
                 }
             });
 
@@ -47,20 +49,52 @@
              */
 
             // instantiate d3plus
-            var visualization = d3plus.viz()
-                .container("#viz") // container DIV to hold the visualization
-                .data(emotions) // data to use with the visualization
-                .type("tree_map") // visualization type
-                .id("emotion") // key for which our data is unique on
-                .size("count") // sizing of blocks - Must be of type number(int) and not a String
-                .color("color") //customize the color
-                .title(country) // Set a title to the window based on the country selected on the previous screen
-                .mouse({
-                    "move": false,
-                    "click": function(d){alert( d.emotion.toUpperCase() + " emotion clicked!")} // we need to change here to go to another html file
+            // var visualization = d3plus.viz()
+            //     .container("#viz") // container DIV to hold the visualization
+            //     .data(emotions) // data to use with the visualization
+            //     .type("tree_map") // visualization type
+            //     .id("emotion") // key for which our data is unique on
+            //     .size("news") // sizing of blocks - Must be of type number(int) and not a String
+            //     //.color("color") //customize the color
+            //     .title(country) // Set a title to the window based on the country selected on the previous screen
+            //     .mouse({
+            //         "move": true,
+            //         "click": function(d){
+            //             sessionStorage.setItem("country", country);
+            //             window.open("cards.html" ,"cards", "resizable=yes,height=600, width=1000");
+            //         }
+            //         //"click": function(d){alert( d.emotion.toUpperCase() + " emotion clicked!")} // we need to change here to go to another html file
+            //     })
+            //         .draw()             // finally, draw the visualization
+
+
+            new d3plus.Treemap()
+                .data(emotions)
+                .groupBy("emotion")
+                .tooltipConfig({
+                    body: function(d) {
+                        var table = "<table class='tooltip-table'>";
+                        table += "<tr><td class='title'>Number of News:</td><td class='data'>" + d.news + "</td></tr>";
+                        table += "</table>";
+                        return table;
+                    },
+                    footer: function(d) {
+                        return "<sub class='tooltip-footer'>Data Collected in August 2018</sub>";
+                    },
+                    title: function(d) {
+                        var txt = d.emotion;
+                        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();;
+                    }
                 })
-                    .draw()             // finally, draw the visualization
+                .on("click", function(d) {
+                    window.open("cards.html" ,"cards", "resizable=yes,height=600, width=1000");
+                })
+                .title(country)
+                .select("#viz")
+                .sum("news")
+                .render();
         })
+
 
         // We need to rewrite this function.
         // The idea is to return one color for each emotion, based on how positive or negative the emotion is
