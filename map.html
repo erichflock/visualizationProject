@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+</head>
+<style>
+
+    body {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        width: 100%;
+        height: 100%;
+        /*position: relative;*/
+        padding-left: 5px;
+    }
+
+</style>
+<body>
+
+    <h1> GDELT data </h1>
+    <h2>Stock Market News </h2>
+    <!--http://www.developphp.com/video/HTML/Date-Time-Form-Input-Type-Tutorial-->
+    Date:
+    <input
+        type="date"
+        name="field1"
+        id="field1"
+        max="2018-08-31"
+        min="2018-08-01"
+        value="2018-08-01"/>
+    <br/><br/>
+    <input
+        type="button"
+        value="Submit"
+        id="Submit" />
+
+</body>
+<script type="text/javascript">
+
+    let sumbitButton = document.querySelector('#Submit');
+    let datePicker   = document.querySelector('#field1');
+
+
+    d3.json("data/world_countries.json", geo_data => {
+
+        var margin = 75,
+            width = 1400 - margin,
+            height = 600 - margin;
+
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width + margin)
+            .attr("height", height + margin)
+            .append('g')
+            .attr('class', 'map');
+
+        var projection = d3.geo.mercator()
+            .scale(140)
+            .translate([width / 2, height / 1.2]);
+
+        var path = d3.geo.path().projection(projection);
+
+        svg.selectAll('path')
+            .data(geo_data.features)
+            .enter()
+            .append('path')
+            .attr('d', path)
+            .style('stroke', 'white')
+            .style('stroke-width', 1.0);
+
+        function drawCountries(data) {
+
+            // dataset preparation
+            function agg_day(leaves) {
+                var total = d3.sum(leaves, d => d['count']);
+                return {'count': total}
+            }
+            var nested = d3.nest()
+                .key(d => d['Date'])
+                .key(d => d['Country'])
+                .rollup(agg_day)
+                .entries(data);
+
+            let updateCountries = date => {
+                let filteredByDate = nested
+                    .filter(day => day.key === date);
+
+                if (filteredByDate.length > 0) {
+
+                    let countries = filteredByDate[0].values;
+                    let maxValue = Math.max(...countries.map(c => c.values.count));
+
+                    // some mathematical helpers
+                    let map = (value, aMin, aMax, bMin, bMax) =>
+                        (value - aMin) / (aMax - aMin) * (bMax - bMin) + bMin;
+
+                    let sigmoid = value =>
+                        2/(1 + Math.pow(Math.E, -10 * value)) - 1;
+
+                    let squish = (value, min, max) =>
+                        map(sigmoid(value/maxValue), 0, 1, min, max);
+
+                    let countToColor = value =>
+                        `hsl(200, 55%, ${Math.round(squish(value, 90, 10))}%)`;
+
+                    // set the color
+                    let setColor = topo => {
+                        let country = countries
+                            .filter(c => c.key === topo.properties.name);
+                        return countToColor(country.length > 0? country[0].values.count: 0)
+                    }
+
+                    // change the fill according to found country
+                    svg.selectAll('path')
+                        .style('fill', setColor);
+                }
+            }
+
+            updateCountries('2018-08-01');
+            sumbitButton.addEventListener('click', e => updateCountries(datePicker.value))
+        }
+
+        d3.csv("data/FINAL_Example_resultdata_0102_sm_title.csv", d => {
+            d['count'] = +d['Count'];
+            d['Date']  = d['Date'];
+            return d;
+        }, drawCountries);
+    })
+
+</script>
+</html>
