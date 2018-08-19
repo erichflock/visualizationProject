@@ -12,19 +12,25 @@
 
 </head>
 <body>
-<h1>Link News + Country + Emotion</h1>
+<h1><span id="countryName"></span> news for <span id="emotion"></span></h1>
+<h4><span id="day"></span></h4>
+
 <div id="card" class="mdc-card my-card">
 </div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script type="text/javascript">
 
-    // var day = sessionStorage.getItem("day");
-    // var country = sessionStorage.getItem("country");
-    // var emotion = sessionStorage.getItem("emotion");
+    var day = sessionStorage.getItem("day");
+    var country = sessionStorage.getItem("country");
+    var emotion = sessionStorage.getItem("emotion");
 
-    var country = 'USA';
-    var day = '2018-08-01';
-    var emotion = 'ambiguous-expectation';
+    console.log(day);
+    // console.log(country)
+    // console.log(emotion)
+
+    // var country = 'USA';
+    // var day = '2018-08-01';
+    // var emotion = 'ambiguous-expectation';
 
     function cardNewsUrl(data) {
         // dataset preparation
@@ -115,6 +121,27 @@
         d['Emotion  '] = d['Emotion'];
         return d;
     }, cardNewsUrl);
+
+    function formatDate(date) {
+        var monthNames = [
+            "January", "February", "March",
+            "April", "May", "June", "July",
+            "August", "September", "October",
+            "November", "December"
+        ];
+
+        date = new Date(date)
+        var day = date.getDate();
+        var monthIndex = date.getMonth();
+        var year = date.getFullYear();
+
+        return day + ' ' + monthNames[monthIndex] + ' ' + year;
+    }
+
+    document.getElementById("countryName").innerHTML = country;
+    document.getElementById("emotion").innerHTML = emotion;
+    document.getElementById("day").innerHTML = formatDate(day);
+
 </script>
 </body>
 </html>
