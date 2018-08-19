@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
 </head>
 <style>
@@ -12,16 +13,46 @@
         height: 100%;
         /*position: relative;*/
         padding-left: 5px;
+        align: "center";
+    }
+
+    canvas {
+    }
+    #canvas-svg {
+    }
+    .land {
+        fill: #222;
+    }
+    .boundary {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1px;
+    }
+    #tooltip-container {
+        position: absolute;
+        background-color: #fff;
+        color: #000;
+        padding: 10px;
+        border: 1px solid;
+        display: none;
+    }
+    .tooltip_key {
+        font-weight: bold;
+    }
+    .tooltip_value {
     }
 
 </style>
+
+<div id="tooltip-container">Hey</div>
+
 <body>
 
-    <h1> GDELT data </h1>
-    <h2>Stock Market News </h2>
+    <h1 align="center"> Data from GDELT <a href=> https://www.gdeltproject.org/ </a></h1>
+    <h2 align="center">Stock Market News' Emotions - Select one day and choose the country!</h2>
     <!--http://www.developphp.com/video/HTML/Date-Time-Form-Input-Type-Tutorial-->
-    Date:
-    <input
+    <div align="center">Date:
+    <input align="center"
         type="date"
         name="field1"
         id="field1"
@@ -29,17 +60,17 @@
         min="2018-08-01"
         value="2018-08-01"/>
     <br/><br/>
-    <input
+    <input align="center"
         type="button"
         value="Submit"
         id="Submit" />
+    </div>
 
 </body>
 <script type="text/javascript">
 
     let sumbitButton = document.querySelector('#Submit');
     let datePicker   = document.querySelector('#field1');
-
 
     d3.json("data/world_countries.json", geo_data => {
 
@@ -95,10 +126,10 @@
                         (value - aMin) / (aMax - aMin) * (bMax - bMin) + bMin;
 
                     let sigmoid = value =>
-                        2/(1 + Math.pow(Math.E, -10 * value)) - 1;
+                        2 / (1 + Math.pow(Math.E, -10 * value)) - 1;
 
                     let squish = (value, min, max) =>
-                        map(sigmoid(value/maxValue), 0, 1, min, max);
+                        map(sigmoid(value / maxValue), 0, 1, min, max);
 
                     let countToColor = value =>
                         `hsl(200, 55%, ${Math.round(squish(value, 90, 10))}%)`;
@@ -107,13 +138,13 @@
                     let setColor = topo => {
                         let country = countries
                             .filter(c => c.key === topo.properties.name);
-                        return countToColor(country.length > 0? country[0].values.count: 0)
+                        return countToColor(country.length > 0 ? country[0].values.count : 0)
                     }
 
                     // change the fill according to found country
                     svg.selectAll('path')
                         .style('fill', setColor)
-                        .on('click', function(d){
+                        .on('click', function (d) {
                             var day = datePicker.value;
                             console.log(day);
                             sessionStorage.setItem("day", day);
@@ -121,8 +152,47 @@
                             console.log(countryName);
                             sessionStorage.setItem("country", countryName);
                             window.open("treemap.html", "Treemap", "resizable=yes,height=600, width=1000");
+
+                        }).on("mousemove", function (d) {
+                        // console.log(d.properties.name);
+                        // $("#tooltip-container").show();
+                        var html = "";
+
+                        html += "<div align='center' class=\"tooltip_kv\">";
+                        html += "<span class=\"tooltip_key\">";
+                        html += d.properties.name + "<br/>";
+                        html += "</span>";
+                        html += "<span class=\"tooltip_value\">";
+                        html += "News: " + getNumberOfNewsByCountry(countries, d.properties.name);
+                        html += "";
+                        html += "</span>";
+                        html += "</div>";
+
+                        $("#tooltip-container").html(html);
+                        $(this).attr("fill-opacity", "0.8");
+                        $("#tooltip-container").show();
+
+                        var coordinates = d3.mouse(this);
+
+                        var map_width = width;
+
+                        if (d3.event.pageX < map_width / 2) {
+                            d3.select("#tooltip-container")
+                                .style("top", (d3.event.layerY + 15) + "px")
+                                .style("left", (d3.event.layerX + 15) + "px");
+                        } else {
+                            var tooltip_width = $("#tooltip-container").width();
+                            d3.select("#tooltip-container")
+                                .style("top", (d3.event.layerY + 15) + "px")
+                                .style("left", (d3.event.layerX - tooltip_width - 30) + "px");
+                        }
+
+                    }).on("mouseout", function (d) {
+                        console.log(d.properties.name);
+                        $("#tooltip-container").hide();
                     })
                 }
+
             }
             updateCountries('2018-08-01');
             sumbitButton.addEventListener('click', e => updateCountries(datePicker.value))
@@ -134,6 +204,16 @@
             return d;
         }, drawCountries);
     })
+
+    function getNumberOfNewsByCountry(countries, countryName){
+        var i;
+        for(i = 0; i < countries.length; i++){
+            if(countries[i].key == countryName){
+                return countries[i].values.count;
+            }
+        }
+        return 0;
+    }
 
 </script>
 </html>
