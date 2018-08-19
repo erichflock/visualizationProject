@@ -6,6 +6,12 @@
     <title>Treemap - Emotions</title>
 </head>
 
+<body>
+<div style="background-color:white", align="center">
+    <h3>Emotions of the Stock Market News</h3>
+    <p><span id="countryName"></span>, <span id="day"></span></p>
+</div>
+
 <!-- load D3js -->
 <script src="//d3plus.org/js/d3.js"></script>
 
@@ -19,14 +25,25 @@
 
 <script>
 
+        /*
+        These variables (country and day) are send by the map.html file
+         */
+
         // get the name of the country clicked on map.html
         var country = sessionStorage.getItem("country");
+        console.log(country)
+        //get the day
+        var day = sessionStorage.getItem("day");
+        console.log(day)
+
+        document.getElementById("countryName").innerHTML = country;
+        document.getElementById("day").innerHTML = formatDate(day);
 
         // read, filter and select only the Emotion and Count columns from the data
         d3.csv("data/FINAL_Example_resultdata_0102_sm_title.csv", function(data) {
 
             var dataFiltered = data.filter(function (d) {
-                if (d["Country"] == country) {
+                if (d["Country"] == country && d["Date"] == day) {
                     return d;
                 }
             });
@@ -36,8 +53,9 @@
             var emotions = dataFiltered.map(function (d) {
                 return {
                     //Country: d.Country,
-                    emotion: d.Emotion,
+                    emotion: d.Emotion.charAt(0).toUpperCase() + d.Emotion.slice(1),
                     news: Number(d.Count), // to the treemap plot work properly, this value must be a number and not a String
+                    day: d.Date
                     //color: getRandomColor().toString() // color variable added in order to have customized colors for each emotion
                 }
             });
@@ -47,26 +65,6 @@
             /*
             http://d3plus.org/examples/basic/9029130/s
              */
-
-            // instantiate d3plus
-            // var visualization = d3plus.viz()
-            //     .container("#viz") // container DIV to hold the visualization
-            //     .data(emotions) // data to use with the visualization
-            //     .type("tree_map") // visualization type
-            //     .id("emotion") // key for which our data is unique on
-            //     .size("news") // sizing of blocks - Must be of type number(int) and not a String
-            //     //.color("color") //customize the color
-            //     .title(country) // Set a title to the window based on the country selected on the previous screen
-            //     .mouse({
-            //         "move": true,
-            //         "click": function(d){
-            //             sessionStorage.setItem("country", country);
-            //             window.open("cards.html" ,"cards", "resizable=yes,height=600, width=1000");
-            //         }
-            //         //"click": function(d){alert( d.emotion.toUpperCase() + " emotion clicked!")} // we need to change here to go to another html file
-            //     })
-            //         .draw()             // finally, draw the visualization
-
 
             new d3plus.Treemap()
                 .data(emotions)
@@ -79,17 +77,16 @@
                         return table;
                     },
                     footer: function(d) {
-                        return "<sub class='tooltip-footer'>Data Collected in August 2018</sub>";
+                        return "<sub class='tooltip-footer'>Data from " + d.day + "</sub>";
                     },
                     title: function(d) {
                         var txt = d.emotion;
-                        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();;
+                        return txt;
                     }
                 })
                 .on("click", function(d) {
-                    window.open("data/cards.html" ,"cards", "resizable=yes,height=600, width=1000");
+                    window.open("data/cards.html" ,"cards", "resizable=yes,height=600, width=500");
                 })
-                .title(country)
                 .select("#viz")
                 .sum("news")
                 .render();
@@ -105,6 +102,22 @@
                 color += letters[Math.floor(Math.random() * 16)];
             }
             return color;
+        }
+
+        function formatDate(date) {
+            var monthNames = [
+                "January", "February", "March",
+                "April", "May", "June", "July",
+                "August", "September", "October",
+                "November", "December"
+            ];
+
+            date = new Date(date)
+            var day = date.getDate();
+            var monthIndex = date.getMonth();
+            var year = date.getFullYear();
+
+            return day + ' ' + monthNames[monthIndex] + ' ' + year;
         }
 
 </script>

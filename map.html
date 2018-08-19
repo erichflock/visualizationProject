@@ -116,6 +116,7 @@
                         .on('click', function(d){
                             var day = datePicker.value;
                             console.log(day);
+                            sessionStorage.setItem("day", day);
                             var countryName = d.properties.name;
                             console.log(countryName);
                             sessionStorage.setItem("country", countryName);
