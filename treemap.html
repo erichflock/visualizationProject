@@ -3,13 +3,12 @@
 <html>
 
 <head>
-    <title>Treemap - Emotions</title>
+    <title>Stock Market News' Emotions</title>
 </head>
 
 <body>
 <div style="background-color:white", align="center">
-    <h3>Emotions of the Stock Market News</h3>
-    <p><span id="countryName"></span>, <span id="day"></span></p>
+    <h3><span id="countryName"></span>, <span id="day"></span></h3>
 </div>
 
 <!-- load D3js -->
@@ -85,6 +84,7 @@
                     }
                 })
                 .on("click", function(d) {
+                    sessionStorage.setItem("emotion", d.emotion.toLowerCase());
                     window.open("data/cards.html" ,"cards", "resizable=yes,height=600, width=500");
                 })
                 .select("#viz")
