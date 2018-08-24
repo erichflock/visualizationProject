@@ -103,11 +103,15 @@
 
     // get the name of the country clicked on map.html
     var country = sessionStorage.getItem("country");
-    //get the day
+    //get the month
     var month = sessionStorage.getItem("month");
+    //get monthAndYear
+    var monthAndYear = sessionStorage.getItem("monthAndYear");
+    monthAndYear = formatDate(month, monthAndYear)
+    console.log(monthAndYear)
 
     document.getElementById("country").innerHTML = country;
-    document.getElementById("month").innerHTML = month;
+    document.getElementById("month").innerHTML = monthAndYear;
     // formatDate(day);
 
     // read, filter and select only the Emotion and Count columns from the data
@@ -141,9 +145,6 @@
                     table += "<tr><td class='title'>Number of News:</td><td class='data'>" + d.news + "</td></tr>";
                     table += "</table>";
                     return table;
-                },
-                footer: function (d) {
-                    return "<sub class='tooltip-footer'>Data from " + d.day + "</sub>";
                 },
                 title: function (d) {
                     var txt = d.emotion;
@@ -286,7 +287,7 @@
             updateCards(month, country, emotion);
         }
 
-        d3.csv("data/2018_STOCKMARKET_JAN_MAY_data.csv", d => {
+        d3.csv("data/data_Jan-May2018.csv", d => {
             d['URL'] = d['URL'];
             d['Title'] = d['Title'];
             d['Author'] = d['Author'];
@@ -313,18 +314,15 @@
         }
     }
 
-    function formatDate(month) {
+    function formatDate(month, monthAndYear) {
         var monthNames = [
             "January", "February", "March",
             "April", "May", "June", "July",
             "August", "September", "October",
             "November", "December"
         ];
-
-        date = new Date(date)
-        var monthIndex = date.getMonth();
-
-        return day + ' ' + monthNames[monthIndex] + ' ' + year;
+        var year = monthAndYear.slice(0,4)
+        return "" + monthNames[month - 1] + ' ' + year;
     }
 
 </script>

@@ -155,8 +155,10 @@
                     svg.selectAll('path')
                         .style('fill', setColor)
                         .on('click', function (d) {
-                            //var day = datePicker.value;
+                            var monthAndYear = datePicker.value;
+                            sessionStorage.setItem("monthAndYear", monthAndYear);
                             var month = datePicker.value.slice(6, 7);
+                            console.log(month)
                             sessionStorage.setItem("month", month);
                             var countryName = d.properties.name;
                             sessionStorage.setItem("country", countryName);
@@ -204,7 +206,7 @@
             sumbitButton.addEventListener('click', e => updateCountries(datePicker.value.slice(6, 7)))
         }
 
-        d3.csv("data/2018_STOCKMARKET_JAN_MAY_data.csv", d => {
+        d3.csv("data/data_Jan-May2018.csv", d => {
             d['count'] = +d['Count'];
             d['Month'] = d['Month'];
             return d;
