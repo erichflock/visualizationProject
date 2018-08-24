@@ -73,7 +73,7 @@
     <h4><span id="day"></span></h4>
 
     <div id="card" class="mdc-card my-card"></div>
-    <p> Thank you </p>>
+    <p>   </p>
 </div>
 
 <div style="background-color:white" , align="center">
@@ -103,10 +103,8 @@
 
     // get the name of the country clicked on map.html
     var country = sessionStorage.getItem("country");
-    console.log(country);
     //get the day
     var month = sessionStorage.getItem("month");
-    console.log(month);
 
     document.getElementById("country").innerHTML = country;
     document.getElementById("month").innerHTML = month;
@@ -119,8 +117,6 @@
                 return d;
             }
         });
-        console.log(data);
-        console.log(dataFiltered);
 
         var emotions = dataFiltered.map(function (d) {
             return {
@@ -131,8 +127,6 @@
                 //color: getRandomColor().toString() // color variable added in order to have customized colors for each emotion
             }
         });
-
-        console.log(emotions);
 
         /*
         http://d3plus.org/examples/basic/9029130/s
@@ -158,26 +152,13 @@
             })
             .on("click", function (d) {
                 sessionStorage.setItem("emotion", d.emotion.toLowerCase());
-                //window.open("data/cards.html", "_self");
                 openNav()
-                // window.open("data/cards.html" ,"cards", "resizable=yes,height=600, width=500");
             })
             .select("#viz")
             .sum("news")
             .render();
     })
 
-
-    // We need to rewrite this function.
-    // The idea is to return one color for each emotion, based on how positive or negative the emotion is
-    function getRandomColor() {
-        var letters = '0123456789ABCDEF';
-        var color = '#';
-        for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-    }
 
     // functions for the sidebar element
     function openNav() {
@@ -198,7 +179,6 @@
 
 
         function cardNewsUrl(data) {
-            console.log(data)
 
             function agg_day(leaves) {
                 var title = leaves.map(function (d) {
@@ -306,7 +286,7 @@
             updateCards(month, country, emotion);
         }
 
-        d3.csv("data/data_Jan-May2018.csv", d => {
+        d3.csv("data/2018_STOCKMARKET_JAN_MAY_data.csv", d => {
             d['URL'] = d['URL'];
             d['Title'] = d['Title'];
             d['Author'] = d['Author'];
@@ -333,21 +313,19 @@
         }
     }
 
-    // function formatDate(date) {
-    //     var monthNames = [
-    //         "January", "February", "March",
-    //         "April", "May", "June", "July",
-    //         "August", "September", "October",
-    //         "November", "December"
-    //     ];
-    //
-    //     date = new Date(date)
-    //     var day = date.getDate();
-    //     var monthIndex = date.getMonth();
-    //     var year = date.getFullYear();
-    //
-    //     return day + ' ' + monthNames[monthIndex] + ' ' + year;
-    // }
+    function formatDate(month) {
+        var monthNames = [
+            "January", "February", "March",
+            "April", "May", "June", "July",
+            "August", "September", "October",
+            "November", "December"
+        ];
+
+        date = new Date(date)
+        var monthIndex = date.getMonth();
+
+        return day + ' ' + monthNames[monthIndex] + ' ' + year;
+    }
 
 </script>
 

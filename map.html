@@ -161,7 +161,6 @@
                             var countryName = d.properties.name;
                             sessionStorage.setItem("country", countryName);
                             window.open("treemap.html", "_self");
-                            // window.open("treemap.html", "Treemap", "resizable=yes,height=600, width=1000", "_self");
 
                         }).on("mousemove", function (d) {
                         var html = "";
@@ -205,7 +204,7 @@
             sumbitButton.addEventListener('click', e => updateCountries(datePicker.value.slice(6, 7)))
         }
 
-        d3.csv("data/data_Jan-May2018.csv", d => {
+        d3.csv("data/2018_STOCKMARKET_JAN_MAY_data.csv", d => {
             d['count'] = +d['Count'];
             d['Month'] = d['Month'];
             return d;
