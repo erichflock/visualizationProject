@@ -19,17 +19,21 @@
     canvas {
         align: "center";
     }
+
     #canvas-svg {
         align: "center";
     }
+
     .land {
         fill: #222;
     }
+
     .boundary {
         fill: none;
         stroke: #fff;
         stroke-width: 1px;
     }
+
     #tooltip-container {
         position: absolute;
         background-color: #fff;
@@ -38,9 +42,11 @@
         border: 1px solid;
         display: none;
     }
+
     .tooltip_key {
         font-weight: bold;
     }
+
     .tooltip_value {
     }
 
@@ -50,30 +56,30 @@
 
 <body>
 
-    <h1 align="center"> Data from <a href=https://www.gdeltproject.org/> GDELT </a> </h1>
-    <h2 align="center">Stock Market News' Emotions - Select a day and country.</h2>
-    <!--http://www.developphp.com/video/HTML/Date-Time-Form-Input-Type-Tutorial-->
-    <div align="center">Date:
+<h1 align="center"> Data from <a href=https://www.gdeltproject.org/> GDELT </a></h1>
+<h2 align="center">Stock Market News' Emotions - Select a month and click on a country.</h2>
+<!--http://www.developphp.com/video/HTML/Date-Time-Form-Input-Type-Tutorial-->
+<div align="center">Month:
     <input align="center"
-        type="date"
-        name="field1"
-        id="field1"
-        max="2018-05-11"
-        min="2018-01-01"
-        value="2018-01-01"/>
+           type="month"
+           name="field1"
+           id="field1"
+           max="2018-05"
+           min="2018-01"
+           value="2018-01"/>
     <br/><br/>
     <input align="center"
-        type="button"
-        value="Submit"
-        id="Submit" />
-    </div>
+           type="button"
+           value="Submit"
+           id="Submit"/>
+</div>
 
 </body>
 <script type="text/javascript">
 
+
     let sumbitButton = document.querySelector('#Submit');
-    // let datePicker   = document.querySelector('#field1');
-    let datePicker = 1;
+    let datePicker = document.querySelector('#field1');
 
     d3.json("data/world_countries.json", geo_data => {
 
@@ -109,6 +115,7 @@
                 var total = d3.sum(leaves, d => d['count']);
                 return {'count': total}
             }
+
             var nested = d3.nest()
                 .key(d => d['Month'])
                 .key(d => d['Country'])
@@ -149,20 +156,14 @@
                         .style('fill', setColor)
                         .on('click', function (d) {
                             //var day = datePicker.value;
-                            //var month = datePicker.value;
-                            var month = 1;
-                            console.log(month)
-                            // sessionStorage.setItem("day", day);
+                            var month = datePicker.value.slice(6, 7);
                             sessionStorage.setItem("month", month);
                             var countryName = d.properties.name;
-                            console.log(countryName);
                             sessionStorage.setItem("country", countryName);
                             window.open("treemap.html", "_self");
                             // window.open("treemap.html", "Treemap", "resizable=yes,height=600, width=1000", "_self");
 
                         }).on("mousemove", function (d) {
-                        // console.log(d.properties.name);
-                        // $("#tooltip-container").show();
                         var html = "";
 
                         html += "<div align='center' class=\"tooltip_kv\">";
@@ -201,25 +202,26 @@
 
             }
             updateCountries('1');
-            // sumbitButton.addEventListener('click', e => updateCountries(datePicker.value))
+            sumbitButton.addEventListener('click', e => updateCountries(datePicker.value.slice(6, 7)))
         }
 
         d3.csv("data/data_Jan-May2018.csv", d => {
             d['count'] = +d['Count'];
-            d['Month']  = d['Month'];
+            d['Month'] = d['Month'];
             return d;
         }, drawCountries);
     })
 
-    function getNumberOfNewsByCountry(countries, countryName){
+    function getNumberOfNewsByCountry(countries, countryName) {
         var i;
-        for(i = 0; i < countries.length; i++){
-            if(countries[i].key == countryName){
+        for (i = 0; i < countries.length; i++) {
+            if (countries[i].key == countryName) {
                 return countries[i].values.count;
             }
         }
         return 0;
     }
+
 
 </script>
 </html>
