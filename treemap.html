@@ -4,20 +4,20 @@
 
 <head>
     <title>Stock Market News' Emotions</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+          href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"/>
+    <link rel="stylesheet" type="text/css" href="data/card.css"/>
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 </head>
 <style>
     body {
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         width: 100%;
         height: 100%;
-        /*position: relative;*/
         padding-left: 5px;
         align: "center";
     }
-
-    /*body {*/
-        /*font-family: "Lato", sans-serif;*/
-    /*}*/
 
     .sidenav {
         height: 100%;
@@ -31,16 +31,14 @@
         transition: 0.5s;
         padding-top: 60px;
     }
-
+    /* The navigation menu links */
     .sidenav a {
         padding: 8px 8px 8px 32px;
         text-decoration: none;
-        font-size: 25px;
         color: #818181;
         display: block;
         transition: 0.3s;
     }
-
     .sidenav a:hover {
         color: #f1f1f1;
     }
@@ -52,9 +50,15 @@
         font-size: 36px;
         margin-left: 50px;
     }
+    #viz {
+        transition: margin-left .5s;
+        padding: 20px;
+    }
 
     @media screen and (max-height: 450px) {
-        .sidenav {padding-top: 15px;}
+        .sidenav {
+            padding-top: 15px;
+        }
         .sidenav a {font-size: 18px;}
     }
 
@@ -68,20 +72,13 @@
     <h1 align="center"><span id="countryName"></span> news for <span id="emotion"></span></h1>
     <h4><span id="day"></span></h4>
 
-    <div id="card" class="mdc-card my-card">
-    </div>
+    <div id="card" class="mdc-card my-card"></div>
+    <p> Thank you </p>>
 </div>
 
-<div style="background-color:white", align="center">
+<div style="background-color:white" , align="center">
     <h3><span id="country"></span>, <span id="month"></span></h3>
 </div>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css"
-      href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"/>
-<link rel="stylesheet" type="text/css" href="data/card.css"/>
-
-<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 
 <!-- load D3js -->
 <script src="//d3plus.org/js/d3.js"></script>
@@ -92,7 +89,7 @@
 <script src="https://d3plus.org/js/d3plus.v2.0.0-alpha.17.full.min.js"></script>
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<script type="text/javascript"> </script>
+<script type="text/javascript"></script>
 
 
 <!-- create container element for visualization -->
@@ -100,252 +97,257 @@
 
 <script>
 
+    /*
+    These variables (country and day) are send by the map.html file
+     */
+
+    // get the name of the country clicked on map.html
+    var country = sessionStorage.getItem("country");
+    console.log(country);
+    //get the day
+    var month = sessionStorage.getItem("month");
+    console.log(month);
+
+    document.getElementById("country").innerHTML = country;
+    document.getElementById("month").innerHTML = month;
+    // formatDate(day);
+
+    // read, filter and select only the Emotion and Count columns from the data
+    d3.csv("data/data_Jan-May2018.csv", function (data) {
+        var dataFiltered = data.filter(function (d) {
+            if (d["Country"] == country && d["Month"] == month) {
+                return d;
+            }
+        });
+        console.log(data);
+        console.log(dataFiltered);
+
+        var emotions = dataFiltered.map(function (d) {
+            return {
+                //Country: d.Country,
+                emotion: d.Emotion.charAt(0).toUpperCase() + d.Emotion.slice(1),
+                news: Number(d.Count), // to the treemap plot work properly, this value must be a number and not a String
+                day: d.Date
+                //color: getRandomColor().toString() // color variable added in order to have customized colors for each emotion
+            }
+        });
+
+        console.log(emotions);
+
         /*
-        These variables (country and day) are send by the map.html file
+        http://d3plus.org/examples/basic/9029130/s
          */
 
-        // get the name of the country clicked on map.html
-        var country = sessionStorage.getItem("country");
-        console.log(country);
-        //get the day
+        new d3plus.Treemap()
+            .data(emotions)
+            .groupBy("emotion")
+            .tooltipConfig({
+                body: function (d) {
+                    var table = "<table class='tooltip-table'>";
+                    table += "<tr><td class='title'>Number of News:</td><td class='data'>" + d.news + "</td></tr>";
+                    table += "</table>";
+                    return table;
+                },
+                footer: function (d) {
+                    return "<sub class='tooltip-footer'>Data from " + d.day + "</sub>";
+                },
+                title: function (d) {
+                    var txt = d.emotion;
+                    return txt;
+                }
+            })
+            .on("click", function (d) {
+                sessionStorage.setItem("emotion", d.emotion.toLowerCase());
+                //window.open("data/cards.html", "_self");
+                openNav()
+                // window.open("data/cards.html" ,"cards", "resizable=yes,height=600, width=500");
+            })
+            .select("#viz")
+            .sum("news")
+            .render();
+    })
+
+
+    // We need to rewrite this function.
+    // The idea is to return one color for each emotion, based on how positive or negative the emotion is
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    // functions for the sidebar element
+    function openNav() {
+
+        document.getElementById("viz").style.marginLeft = "500px";
+
+        var card = document.getElementById("card");
+        var fc = card.firstChild;
+        while (fc) {
+            card.removeChild(fc);
+            fc = card.firstChild;
+        }
+
+        document.getElementById("mySidenav").style.width = "500px";
         var month = sessionStorage.getItem("month");
-        console.log(month);
-        // var day = sessionStorage.getItem("day");
+        var country = sessionStorage.getItem("country");
+        var emotion = sessionStorage.getItem("emotion");
 
-        document.getElementById("country").innerHTML = country;
-        document.getElementById("month").innerHTML = month ;
-        // formatDate(day);
 
-        // read, filter and select only the Emotion and Count columns from the data
-        d3.csv("data/data_Jan-May2018.csv", function(data) {
-            var dataFiltered = data.filter(function (d) {
-                if (d["Country"] == country && d["Month"] == month) {
-                    return d;
-                }
-            });
-            console.log(data);
-            console.log(dataFiltered);
+        function cardNewsUrl(data) {
+            console.log(data)
 
-            var emotions = dataFiltered.map(function (d) {
+            function agg_day(leaves) {
+                var title = leaves.map(function (d) {
+                    return d['Title'];
+                });
+                var url = leaves.map(function (d) {
+                    return d['URL'];
+                });
+                var author = leaves.map(function (d) {
+                    return d['Author'];
+                });
+                var image = leaves.map(function (d) {
+                    return d['Image'];
+                });
+                var date = leaves.map(function (d) {
+                    return d['Date'];
+                });
+
                 return {
-                    //Country: d.Country,
-                    emotion: d.Emotion.charAt(0).toUpperCase() + d.Emotion.slice(1),
-                    news: Number(d.Count), // to the treemap plot work properly, this value must be a number and not a String
-                    day: d.Date
-                    //color: getRandomColor().toString() // color variable added in order to have customized colors for each emotion
-                }
-            });
-
-            console.log(emotions);
-
-            /*
-            http://d3plus.org/examples/basic/9029130/s
-             */
-
-            new d3plus.Treemap()
-                .data(emotions)
-                .groupBy("emotion")
-                .tooltipConfig({
-                    body: function(d) {
-                        var table = "<table class='tooltip-table'>";
-                        table += "<tr><td class='title'>Number of News:</td><td class='data'>" + d.news + "</td></tr>";
-                        table += "</table>";
-                        return table;
-                    },
-                    footer: function(d) {
-                        return "<sub class='tooltip-footer'>Data from " + d.day + "</sub>";
-                    },
-                    title: function(d) {
-                        var txt = d.emotion;
-                        return txt;
-                    }
-                })
-                .on("click", function(d) {
-                    sessionStorage.setItem("emotion", d.emotion.toLowerCase());
-                    //window.open("data/cards.html", "_self");
-                    openNav()
-                    // window.open("data/cards.html" ,"cards", "resizable=yes,height=600, width=500");
-                })
-                .select("#viz")
-                .sum("news")
-                .render();
-        })
-
-
-        // We need to rewrite this function.
-        // The idea is to return one color for each emotion, based on how positive or negative the emotion is
-        function getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
-        // functions for the sidebar element
-        function openNav() {
-
-            document.getElementById("viz").style.marginLeft = "500px";
-
-            var card = document.getElementById("card");
-            var fc = card.firstChild;
-            while(fc){
-                card.removeChild(fc);
-                fc = card.firstChild;
-            }
-
-            document.getElementById("mySidenav").style.width = "500px";
-            var month = sessionStorage.getItem("month");
-            var country = sessionStorage.getItem("country");
-            var emotion = sessionStorage.getItem("emotion");
-
-            //
-            // var country = 'USA';
-            // var day = '2018-08-01';
-            // var emotion = 'ambiguous-expectation';
-
-            function cardNewsUrl(data) {
-                console.log(data)
-                function agg_day(leaves) {
-                    var title = leaves.map(function (d) {
-                        return d['Title'];
-                    });
-                    var url = leaves.map(function (d) {
-                        return d['URL'];
-                    });
-                    var author = leaves.map(function (d) {
-                        return d['Author'];
-                    });
-                    var image = leaves.map(function (d) {
-                        return d['Image'];
-                    });
-                    return {
-                        'Title': title,
-                        'URL': url,
-                        'Author': author,
-                        'Image': image
-                    };
-                }
-
-                var nested = d3.nest()
-                    .key(d => d['Month'])
-                    .key(d => d['Country'])
-                    .key(d => d['Emotion'])
-                    .rollup(agg_day)
-                    .entries(data);
-
-                let updateCards = (_month, _country, _emotion) => {
-                    let filteredByDate = nested.filter(month => month.key === _month);
-                    let filteredByCountry = filteredByDate[0].values.filter(country => country.key === _country);
-                    let filteredByEmotion = filteredByCountry[0].values.filter(emotion => emotion.key === _emotion);
-                    var i = 0;
-                    var len = filteredByEmotion[0].values.URL.length;
-                    var links = filteredByEmotion[0].values.URL;
-                    var title_news = filteredByEmotion[0].values.Title;
-                    var title_author = filteredByEmotion[0].values.Author;
-                    var title_image = filteredByEmotion[0].values.Image;
-
-                    for (; i < len; i++) {
-
-                        var card_container = document.createElement('div');
-                        card_container.setAttribute("class", 'mdc-card__primary-action mdc-ripple-upgraded mdc-ripple-upgraded--foreground-activation');
-                        var card_container1 = document.createElement('div');
-                        card_container1.setAttribute("class", 'mdc-card__media mdc-card__media--16-9 my-card__media');
-                        if (title_image[i]) {
-                            var foto = title_image[i];
-                            url1 = 'url(' + foto + ')';
-                            console.log(title_image[i]);
-                            card_container1.style.backgroundImage = url1;
-                        }
-                        card_container.appendChild(card_container1);
-                        var primary = document.createElement('div');
-                        primary.setAttribute("class", 'my-card__primary');
-                        ''
-                        var title = document.createElement('h2');
-                        var newtitle = title_news[i];
-                        if (title_news[i] == "" || title_news[i] == "[None]") {
-                            newtitle = 'Unable to retrive title'
-                        }
-                        var title_text = document.createTextNode(newtitle);
-                        title.setAttribute("class", "my-card__title mdc-typography--headline6");
-                        title.appendChild(title_text);
-                        var author = document.createElement('h3');
-                        if (!title_author[i]) {
-                            var author_text = document.createTextNode(title_author[i]);
-                        }
-                        else {
-                            var author_text = document.createTextNode('')
-                        }
-                        author.setAttribute("class", "my-card__subtitle mdc-typography--subtitle2");
-                        author.appendChild(author_text);
-                        primary.appendChild(title);
-                        primary.appendChild(author);
-                        card_container.appendChild(primary);
-                        var card_action = document.createElement('div');
-                        card_action.setAttribute("class", 'my-card__actions');
-                        var card_button = document.createElement('div');
-                        card_button.setAttribute("class", 'mdc-card__action-buttons');
-                        var a_link = document.createElement('a');
-                        var button_text = document.createTextNode('Read');
-                        a_link.setAttribute('href', links[i])
-                        a_link.appendChild(button_text);
-                        a_link.setAttribute("class", 'mdc-button mdc-card__action mdc-card__action--button mdc-ripple-upgraded');
-                        card_button.appendChild(a_link);
-                        card_action.appendChild(card_button);
-                        card_container.appendChild(card_action);
-
-                        var element = document.getElementById("card");
-                        element.appendChild(card_container);
-
-                    }
+                    'Title': title,
+                    'URL': url,
+                    'Author': author,
+                    'Image': image,
+                    'Date': date
                 };
-                // https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form
-                updateCards(month, country, emotion);
             }
 
-            d3.csv("data/data_Jan-May2018.csv", d => {
-                d['URL'] = d['URL'];
-                d['Title'] = d['Title'];
-                d['Author'] = d['Author'];
-                d['Image'] = d['Image'];
-                d['Month'] = d['Month'];
-                d['Country'] = d['Country'];
-                d['Emotion'] = d['Emotion'];
-                return d;
-            }, cardNewsUrl);
+            var nested = d3.nest()
+                .key(d => d['Month'])
+                .key(d => d['Country'])
+                .key(d => d['Emotion'])
+                .rollup(agg_day)
+                .entries(data);
 
-            document.getElementById("countryName").innerHTML = country;
-            document.getElementById("emotion").innerHTML = emotion;
-            // document.getElementById("day").innerHTML = formatDate(day);
+            let updateCards = (_month, _country, _emotion) => {
+                let filteredByDate = nested.filter(month => month.key === _month);
+                let filteredByCountry = filteredByDate[0].values.filter(country => country.key === _country);
+                let filteredByEmotion = filteredByCountry[0].values.filter(emotion => emotion.key === _emotion);
+                var i = 0;
+                var len = filteredByEmotion[0].values.URL.length;
+                var links = filteredByEmotion[0].values.URL;
+                var title_news = filteredByEmotion[0].values.Title;
+                var title_author = filteredByEmotion[0].values.Author;
+                var title_image = filteredByEmotion[0].values.Image;
+                var news_date = filteredByEmotion[0].values.Date;
+
+                for (; i < len; i++) {
+
+                    var card_container = document.createElement('div');
+                    card_container.setAttribute("class", 'mdc-card__primary-action mdc-ripple-upgraded mdc-ripple-upgraded--foreground-activation');
+                    var card_container1 = document.createElement('div');
+                    card_container1.setAttribute("class", 'mdc-card__media mdc-card__media--16-9 my-card__media');
+                    if (title_image[i]) {
+                        var foto = title_image[i];
+                        url1 = 'url(' + foto + ')';
+                        card_container1.style.backgroundImage = url1;
+                    }
+                    card_container.appendChild(card_container1);
+                    var primary = document.createElement('div');
+                    primary.setAttribute("class", 'my-card__primary');
+                    var title = document.createElement('h2');
+                    var newtitle = title_news[i];
+                    if (title_news[i] == "" || title_news[i] == "[None]") {
+                        newtitle = 'Unable to retrive title'
+                    }
+                    var title_text = document.createTextNode(newtitle);
+                    title.setAttribute("class", "my-card__title mdc-typography--headline6");
+                    title.appendChild(title_text);
+                    var author = document.createElement('h3');
+                    if (!title_author[i]) {
+                        var author_text = document.createTextNode(title_author[i]);
+                    }
+                    else {
+                        var author_text = document.createTextNode('')
+                    }
+                    author.setAttribute("class", "my-card__subtitle mdc-typography--subtitle2");
+                    author.appendChild(author_text);
+                    var date = document.createElement('div')
+                    date.setAttribute("class", "demo-card__secondary mdc-typography--body2")
+                    var date_text = document.createTextNode(news_date[i]);
+                    date.appendChild(date_text);
+                    primary.appendChild(title);
+                    primary.appendChild(author);
+                    primary.appendChild(date);
+                    card_container.appendChild(primary);
+                    var card_action = document.createElement('div');
+                    card_action.setAttribute("class", 'my-card__actions');
+                    var card_button = document.createElement('div');
+                    card_button.setAttribute("class", 'mdc-card__action-buttons');
+                    var a_link = document.createElement('a');
+                    var button_text = document.createTextNode('Read');
+                    a_link.setAttribute('href', links[i])
+                    a_link.appendChild(button_text);
+                    a_link.setAttribute("class", 'mdc-button mdc-card__action mdc-card__action--button mdc-ripple-upgraded');
+                    card_button.appendChild(a_link);
+                    card_action.appendChild(card_button);
+                    card_container.appendChild(card_action);
+
+                    var element = document.getElementById("card");
+                    element.appendChild(card_container);
+
+                }
+            };
+            // https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form
+            updateCards(month, country, emotion);
         }
 
-        function closeNav() {
-            document.getElementById("viz").style.marginLeft= "0";
-            document.getElementById("mySidenav").style.width = "0";
-            var card = document.getElementById("card");
-            var fc = card.firstChild;
-            while(fc){
-                card.removeChild(fc);
-                fc = card.firstChild;
-            }
-        }
+        d3.csv("data/data_Jan-May2018.csv", d => {
+            d['URL'] = d['URL'];
+            d['Title'] = d['Title'];
+            d['Author'] = d['Author'];
+            d['Image'] = d['Image'];
+            d['Month'] = d['Month'];
+            d['Country'] = d['Country'];
+            d['Emotion'] = d['Emotion'];
+            return d;
+        }, cardNewsUrl);
 
-        // function formatDate(date) {
-        //     var monthNames = [
-        //         "January", "February", "March",
-        //         "April", "May", "June", "July",
-        //         "August", "September", "October",
-        //         "November", "December"
-        //     ];
-        //
-        //     date = new Date(date)
-        //     var day = date.getDate();
-        //     var monthIndex = date.getMonth();
-        //     var year = date.getFullYear();
-        //
-        //     return day + ' ' + monthNames[monthIndex] + ' ' + year;
-        // }
+        document.getElementById("countryName").innerHTML = country;
+        document.getElementById("emotion").innerHTML = emotion;
+        // document.getElementById("day").innerHTML = formatDate(day);
+    }
+
+    function closeNav() {
+        document.getElementById("viz").style.marginLeft = "0";
+        document.getElementById("mySidenav").style.width = "0";
+        var card = document.getElementById("card");
+        var fc = card.firstChild;
+        while (fc) {
+            card.removeChild(fc);
+            fc = card.firstChild;
+        }
+    }
+
+    // function formatDate(date) {
+    //     var monthNames = [
+    //         "January", "February", "March",
+    //         "April", "May", "June", "July",
+    //         "August", "September", "October",
+    //         "November", "December"
+    //     ];
+    //
+    //     date = new Date(date)
+    //     var day = date.getDate();
+    //     var monthIndex = date.getMonth();
+    //     var year = date.getFullYear();
+    //
+    //     return day + ' ' + monthNames[monthIndex] + ' ' + year;
+    // }
 
 </script>
 
