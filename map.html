@@ -11,14 +11,16 @@
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         width: 100%;
         height: 100%;
-        /*position: relative;*/
+        position: relative;
         padding-left: 5px;
         align: "center";
     }
 
     canvas {
+        align: "center";
     }
     #canvas-svg {
+        align: "center";
     }
     .land {
         fill: #222;
@@ -48,17 +50,17 @@
 
 <body>
 
-    <h1 align="center"> Data from GDELT <a href=> https://www.gdeltproject.org/ </a></h1>
-    <h2 align="center">Stock Market News' Emotions - Select one day and choose the country!</h2>
+    <h1 align="center"> Data from <a href=https://www.gdeltproject.org/> GDELT </a> </h1>
+    <h2 align="center">Stock Market News' Emotions - Select a day and country.</h2>
     <!--http://www.developphp.com/video/HTML/Date-Time-Form-Input-Type-Tutorial-->
     <div align="center">Date:
     <input align="center"
         type="date"
         name="field1"
         id="field1"
-        max="2018-08-31"
-        min="2018-08-01"
-        value="2018-08-01"/>
+        max="2018-05-11"
+        min="2018-01-01"
+        value="2018-01-01"/>
     <br/><br/>
     <input align="center"
         type="button"
@@ -70,13 +72,14 @@
 <script type="text/javascript">
 
     let sumbitButton = document.querySelector('#Submit');
-    let datePicker   = document.querySelector('#field1');
+    // let datePicker   = document.querySelector('#field1');
+    let datePicker = 1;
 
     d3.json("data/world_countries.json", geo_data => {
 
         var margin = 75,
-            width = 1400 - margin,
-            height = 600 - margin;
+            width = 1900 - margin,
+            height = 700 - margin;
 
         var svg = d3.select("body")
             .append("svg")
@@ -86,8 +89,8 @@
             .attr('class', 'map');
 
         var projection = d3.geo.mercator()
-            .scale(140)
-            .translate([width / 2, height / 1.2]);
+            .scale(155)
+            .translate([width / 2, height / 1.3]);
 
         var path = d3.geo.path().projection(projection);
 
@@ -107,7 +110,7 @@
                 return {'count': total}
             }
             var nested = d3.nest()
-                .key(d => d['Date'])
+                .key(d => d['Month'])
                 .key(d => d['Country'])
                 .rollup(agg_day)
                 .entries(data);
@@ -145,13 +148,17 @@
                     svg.selectAll('path')
                         .style('fill', setColor)
                         .on('click', function (d) {
-                            var day = datePicker.value;
-                            console.log(day);
-                            sessionStorage.setItem("day", day);
+                            //var day = datePicker.value;
+                            //var month = datePicker.value;
+                            var month = 1;
+                            console.log(month)
+                            // sessionStorage.setItem("day", day);
+                            sessionStorage.setItem("month", month);
                             var countryName = d.properties.name;
                             console.log(countryName);
                             sessionStorage.setItem("country", countryName);
-                            window.open("treemap.html", "Treemap", "resizable=yes,height=600, width=1000");
+                            window.open("treemap.html", "_self");
+                            // window.open("treemap.html", "Treemap", "resizable=yes,height=600, width=1000", "_self");
 
                         }).on("mousemove", function (d) {
                         // console.log(d.properties.name);
@@ -188,19 +195,18 @@
                         }
 
                     }).on("mouseout", function (d) {
-                        console.log(d.properties.name);
                         $("#tooltip-container").hide();
                     })
                 }
 
             }
-            updateCountries('2018-08-01');
-            sumbitButton.addEventListener('click', e => updateCountries(datePicker.value))
+            updateCountries('1');
+            // sumbitButton.addEventListener('click', e => updateCountries(datePicker.value))
         }
 
-        d3.csv("data/FINAL_Example_resultdata_0102_sm_title.csv", d => {
+        d3.csv("data/data_Jan-May2018.csv", d => {
             d['count'] = +d['Count'];
-            d['Date']  = d['Date'];
+            d['Month']  = d['Month'];
             return d;
         }, drawCountries);
     })

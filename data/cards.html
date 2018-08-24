@@ -5,7 +5,7 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css"
-               href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"/>
+          href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"/>
     <link rel="stylesheet" type="text/css" href="card.css"/>
 
     <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
@@ -20,46 +20,56 @@
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script type="text/javascript">
 
-    var day = sessionStorage.getItem("day");
+    var month = sessionStorage.getItem("month");
     var country = sessionStorage.getItem("country");
     var emotion = sessionStorage.getItem("emotion");
 
-    console.log(day);
-    // console.log(country)
-    // console.log(emotion)
-
+    //
     // var country = 'USA';
     // var day = '2018-08-01';
     // var emotion = 'ambiguous-expectation';
 
     function cardNewsUrl(data) {
-        // dataset preparation
+        console.log(data)
         function agg_day(leaves) {
             var title = leaves.map(function (d) {
                 return d['Title'];
             });
             var url = leaves.map(function (d) {
-                return d['DocumentIdentifier'];
+                return d['URL'];
+            });
+            var author = leaves.map(function (d) {
+                return d['Author'];
+            });
+            var image = leaves.map(function (d) {
+                return d['Image'];
             });
             return {
                 'Title': title,
-                'DocumentIdentifier': url
+                'URL': url,
+                'Author': author,
+                'Image': image
             };
         }
+
         var nested = d3.nest()
-            .key(d => d['Date'])
+            .key(d => d['Month'])
             .key(d => d['Country'])
             .key(d => d['Emotion'])
             .rollup(agg_day)
             .entries(data);
-        let updateCards = (_date, _country, _emotion) => {
-            let filteredByDate = nested.filter(day => day.key === _date);
+
+        let updateCards = (_month, _country, _emotion) => {
+            let filteredByDate = nested.filter(month => month.key === _month);
             let filteredByCountry = filteredByDate[0].values.filter(country => country.key === _country);
             let filteredByEmotion = filteredByCountry[0].values.filter(emotion => emotion.key === _emotion);
             var i = 0;
-            var len = filteredByEmotion[0].values.DocumentIdentifier.length;
-            var links = filteredByEmotion[0].values.DocumentIdentifier;
+            var len = filteredByEmotion[0].values.URL.length;
+            var links = filteredByEmotion[0].values.URL;
             var title_news = filteredByEmotion[0].values.Title;
+            var title_author = filteredByEmotion[0].values.Author;
+            var title_image = filteredByEmotion[0].values.Image;
+
             for (; i < len; i++) {
                 // var target = links[i];
                 // var key    = "5b7856743e02fc960f4d46e293a26f409644c13b7c1fe";
@@ -72,26 +82,40 @@
 
                 var card_container = document.createElement('div');
                 card_container.setAttribute("class", 'mdc-card__primary-action mdc-ripple-upgraded mdc-ripple-upgraded--foreground-activation');
-                var card_container1 = document.createElement('div');''
+                var card_container1 = document.createElement('div');
                 card_container1.setAttribute("class", 'mdc-card__media mdc-card__media--16-9 my-card__media');
+                if (title_image[i]) {
+                    var foto = title_image[i];
+                    url1 = 'url(' + foto + ')';
+                    console.log(title_image[i]);
+                    card_container1.style.backgroundImage = url1;
+                }
                 card_container.appendChild(card_container1);
-
                 var primary = document.createElement('div');
                 primary.setAttribute("class", 'my-card__primary');
-
+                ''
                 var title = document.createElement('h2');
-                var title_text = document.createTextNode(title_news[i]);
-                // console.log(title_text)
+                var newtitle = title_news[i];
+                if (title_news[i] == "" || title_news[i] == "[None]") {
+                    newtitle = 'Unable to retrive title'
+                }
+                // newtitle = newtitle.replace('[', '');
+                // newtitle = newtitle.replace(']', '');
+                var title_text = document.createTextNode(newtitle);
                 title.setAttribute("class", "my-card__title mdc-typography--headline6");
                 title.appendChild(title_text);
                 var author = document.createElement('h3');
-                var author_text = document.createTextNode('example');
+                if (!title_author[i]) {
+                    var author_text = document.createTextNode(title_author[i]);
+                }
+                else {
+                    var author_text = document.createTextNode('')
+                }
                 author.setAttribute("class", "my-card__subtitle mdc-typography--subtitle2");
                 author.appendChild(author_text);
                 primary.appendChild(title);
                 primary.appendChild(author);
                 card_container.appendChild(primary);
-
                 var card_action = document.createElement('div');
                 card_action.setAttribute("class", 'my-card__actions');
                 var card_button = document.createElement('div');
@@ -111,36 +135,40 @@
             }
         };
         // https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form
-        updateCards(day, country, emotion);
+        updateCards(month, country, emotion);
+        //updateCards('2018-01-10', 'India', 'defeatism');
     }
-    d3.csv("FINAL_Example_resultdata_0102_sm_title.csv", d => {
-        d['DocumentIdentifier'] = d['DocumentIdentifier'];
+
+    d3.csv("data_Jan-May2018.csv", d => {
+        d['URL'] = d['URL'];
         d['Title'] = d['Title'];
-        d['Date'] = d['Date'];
+        d['Author'] = d['Author'];
+        d['Image'] = d['Image'];
+        d['Month'] = d['Month'];
         d['Country'] = d['Country'];
-        d['Emotion  '] = d['Emotion'];
+        d['Emotion'] = d['Emotion'];
         return d;
     }, cardNewsUrl);
 
-    function formatDate(date) {
-        var monthNames = [
-            "January", "February", "March",
-            "April", "May", "June", "July",
-            "August", "September", "October",
-            "November", "December"
-        ];
-
-        date = new Date(date)
-        var day = date.getDate();
-        var monthIndex = date.getMonth();
-        var year = date.getFullYear();
-
-        return day + ' ' + monthNames[monthIndex] + ' ' + year;
-    }
-
-    document.getElementById("countryName").innerHTML = country;
-    document.getElementById("emotion").innerHTML = emotion;
-    document.getElementById("day").innerHTML = formatDate(day);
+    // function formatDate(date) {
+    //     var monthNames = [
+    //         "January", "February", "March",
+    //         "April", "May", "June", "July",
+    //         "August", "September", "October",
+    //         "November", "December"
+    //     ];
+    //
+    //     date = new Date(date)
+    //     var day = date.getDate();
+    //     var monthIndex = date.getMonth();
+    //     var year = date.getFullYear();
+    //
+    //     return day + ' ' + monthNames[monthIndex] + ' ' + year;
+    // }
+    //
+    // document.getElementById("countryName").innerHTML = country;
+    // document.getElementById("emotion").innerHTML = emotion;
+    // document.getElementById("day").innerHTML = formatDate(day);
 
 </script>
 </body>
