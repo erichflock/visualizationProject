@@ -65,9 +65,8 @@
            name="field1"
            id="field1"
            max="2018-05"
-           min="2018-01"
-           value="2018-01"/>
-    <br/><br/>
+           min="2017-01"
+           value="2017-01"/>
     <input align="center"
            type="button"
            value="Submit"
@@ -80,10 +79,12 @@
 
     let sumbitButton = document.querySelector('#Submit');
     let datePicker = document.querySelector('#field1');
+    console.log(datePicker.value)
+
 
     d3.json("data/world_countries.json", geo_data => {
 
-        var margin = 75,
+        var margin = 50,
             width = 1900 - margin,
             height = 700 - margin;
 
@@ -109,7 +110,6 @@
             .style('stroke-width', 1.0);
 
         function drawCountries(data) {
-
             // dataset preparation
             function agg_day(leaves) {
                 var total = d3.sum(leaves, d => d['count']);
@@ -117,17 +117,22 @@
             }
 
             var nested = d3.nest()
+                .key(d=> d['Year'])
                 .key(d => d['Month'])
                 .key(d => d['Country'])
                 .rollup(agg_day)
                 .entries(data);
 
-            let updateCountries = date => {
-                let filteredByDate = nested
-                    .filter(day => day.key === date);
+
+            let updateCountries = ( _year, _month) => {
+                if ( _month.startsWith('0')){
+                    _month = _month.slice(1);
+                }
+
+                let filteredByYear = nested.filter(year => year.key === _year);
+                let filteredByDate = filteredByYear[0].values.filter(month => month.key === _month);
 
                 if (filteredByDate.length > 0) {
-
                     let countries = filteredByDate[0].values;
                     let maxValue = Math.max(...countries.map(c => c.values.count));
 
@@ -142,7 +147,7 @@
                         map(sigmoid(value / maxValue), 0, 1, min, max);
 
                     let countToColor = value =>
-                        `hsl(200, 55%, ${Math.round(squish(value, 90, 10))}%)`;
+                        `hsl(200, 55%, ${Math.round(squish(value, 95, 10))}%)`;
 
                     // set the color
                     let setColor = topo => {
@@ -157,16 +162,11 @@
                         .on('click', function (d) {
                             var monthAndYear = datePicker.value;
                             sessionStorage.setItem("monthAndYear", monthAndYear);
-                            var month = datePicker.value.slice(6, 7);
-                            console.log(month)
-                            sessionStorage.setItem("month", month);
                             var countryName = d.properties.name;
                             sessionStorage.setItem("country", countryName);
                             window.open("treemap.html", "_self");
-
                         }).on("mousemove", function (d) {
                         var html = "";
-
                         html += "<div align='center' class=\"tooltip_kv\">";
                         html += "<span class=\"tooltip_key\">";
                         html += d.properties.name + "<br/>";
@@ -197,18 +197,20 @@
                         }
 
                     }).on("mouseout", function (d) {
+                        $(this).attr("fill-opacity", "1");
                         $("#tooltip-container").hide();
                     })
                 }
 
             }
-            updateCountries('1');
-            sumbitButton.addEventListener('click', e => updateCountries(datePicker.value.slice(6, 7)))
+            updateCountries('2017', '1');
+            sumbitButton.addEventListener('click', e => updateCountries(datePicker.value.slice(0, 4), datePicker.value.slice(5, 7)))
         }
 
-        d3.csv("data/data_Jan-May2018.csv", d => {
+        d3.csv("data/STOCKMARKET_data.csv", d => {
             d['count'] = +d['Count'];
             d['Month'] = d['Month'];
+            d['Year'] = d['Year'];
             return d;
         }, drawCountries);
     })

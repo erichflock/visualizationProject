@@ -69,15 +69,17 @@
 <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 
-    <h1 align="center"><span id="countryName"></span> news for <span id="emotion"></span></h1>
+    <h2 align="center">
+        <!--<span id="countryName"></span>-->
+        News for <span id="emotion"></span></h2>
     <h4><span id="day"></span></h4>
 
     <div id="card" class="mdc-card my-card"></div>
-    <p>   </p>
+    <p style="color:white;">  Gdelt </p>
 </div>
 
 <div style="background-color:white" , align="center">
-    <h3><span id="country"></span>, <span id="month"></span></h3>
+    <h1><span id="country"></span>, <span id="month"></span></h1>
 </div>
 
 <!-- load D3js -->
@@ -104,20 +106,24 @@
     // get the name of the country clicked on map.html
     var country = sessionStorage.getItem("country");
     //get the month
-    var month = sessionStorage.getItem("month");
-    //get monthAndYear
     var monthAndYear = sessionStorage.getItem("monthAndYear");
-    monthAndYear = formatDate(month, monthAndYear)
-    console.log(monthAndYear)
+    var year = monthAndYear.slice(0,4)
+    var month = monthAndYear.slice(5,7)
+    if ( month.startsWith('0')){
+        month = month.slice(1);
+    }
+    monthAndYear = formatDate(month, year)
+    console.log(month)
+    console.log(year)
 
     document.getElementById("country").innerHTML = country;
     document.getElementById("month").innerHTML = monthAndYear;
     // formatDate(day);
 
     // read, filter and select only the Emotion and Count columns from the data
-    d3.csv("data/data_Jan-May2018.csv", function (data) {
+    d3.csv("data/STOCKMARKET_data.csv", function (data) {
         var dataFiltered = data.filter(function (d) {
-            if (d["Country"] == country && d["Month"] == month) {
+            if (d["Country"] == country && d["Month"] == month && d["Year" == year]) {
                 return d;
             }
         });
@@ -208,14 +214,16 @@
             }
 
             var nested = d3.nest()
+                .key(d=> d['Year'])
                 .key(d => d['Month'])
                 .key(d => d['Country'])
                 .key(d => d['Emotion'])
                 .rollup(agg_day)
                 .entries(data);
 
-            let updateCards = (_month, _country, _emotion) => {
-                let filteredByDate = nested.filter(month => month.key === _month);
+            let updateCards = (_year, _month, _country, _emotion) => {
+                let filteredByYear = nested.filter(year => year.key === _year);
+                let filteredByDate = filteredByYear[0].values.filter(month => month.key === _month);
                 let filteredByCountry = filteredByDate[0].values.filter(country => country.key === _country);
                 let filteredByEmotion = filteredByCountry[0].values.filter(emotion => emotion.key === _emotion);
                 var i = 0;
@@ -287,7 +295,8 @@
             updateCards(month, country, emotion);
         }
 
-        d3.csv("data/data_Jan-May2018.csv", d => {
+        d3.csv("data/STOCKMARKET_data.csv", d => {
+            d['Year'] = d['Year'];
             d['URL'] = d['URL'];
             d['Title'] = d['Title'];
             d['Author'] = d['Author'];
@@ -298,7 +307,7 @@
             return d;
         }, cardNewsUrl);
 
-        document.getElementById("countryName").innerHTML = country;
+        // document.getElementById("countryName").innerHTML = country;
         document.getElementById("emotion").innerHTML = emotion;
         // document.getElementById("day").innerHTML = formatDate(day);
     }
@@ -314,18 +323,18 @@
         }
     }
 
-    function formatDate(month, monthAndYear) {
+    function formatDate(month, year) {
         var monthNames = [
             "January", "February", "March",
             "April", "May", "June", "July",
             "August", "September", "October",
             "November", "December"
         ];
-        var year = monthAndYear.slice(0,4)
         return "" + monthNames[month - 1] + ' ' + year;
     }
 
-</script>
 
+
+</script>
 </body>
 </html>
