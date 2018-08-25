@@ -108,22 +108,20 @@
     //get the month
     var monthAndYear = sessionStorage.getItem("monthAndYear");
     var year = monthAndYear.slice(0,4)
+
     var month = monthAndYear.slice(5,7)
     if ( month.startsWith('0')){
         month = month.slice(1);
     }
     monthAndYear = formatDate(month, year)
-    console.log(month)
-    console.log(year)
 
     document.getElementById("country").innerHTML = country;
     document.getElementById("month").innerHTML = monthAndYear;
-    // formatDate(day);
 
     // read, filter and select only the Emotion and Count columns from the data
     d3.csv("data/STOCKMARKET_data.csv", function (data) {
         var dataFiltered = data.filter(function (d) {
-            if (d["Country"] == country && d["Month"] == month && d["Year" == year]) {
+            if (d["Month"] == month && d["Year"] == year && d["Country"] == country) {
                 return d;
             }
         });
@@ -180,8 +178,7 @@
         }
 
         document.getElementById("mySidenav").style.width = "500px";
-        var month = sessionStorage.getItem("month");
-        var country = sessionStorage.getItem("country");
+
         var emotion = sessionStorage.getItem("emotion");
 
 
@@ -292,7 +289,7 @@
                 }
             };
             // https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form
-            updateCards(month, country, emotion);
+            updateCards(year, month, country, emotion);
         }
 
         d3.csv("data/STOCKMARKET_data.csv", d => {
@@ -307,9 +304,7 @@
             return d;
         }, cardNewsUrl);
 
-        // document.getElementById("countryName").innerHTML = country;
         document.getElementById("emotion").innerHTML = emotion;
-        // document.getElementById("day").innerHTML = formatDate(day);
     }
 
     function closeNav() {
