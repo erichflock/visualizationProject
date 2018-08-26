@@ -31,6 +31,7 @@
         transition: 0.5s;
         padding-top: 60px;
     }
+
     /* The navigation menu links */
     .sidenav a {
         padding: 8px 8px 8px 32px;
@@ -39,6 +40,7 @@
         display: block;
         transition: 0.3s;
     }
+
     .sidenav a:hover {
         color: #f1f1f1;
     }
@@ -50,16 +52,22 @@
         font-size: 36px;
         margin-left: 50px;
     }
+
     #viz {
         transition: margin-left .5s;
         padding: 20px;
+        width: 100%;
+        height: 80%;
     }
 
     @media screen and (max-height: 450px) {
         .sidenav {
             padding-top: 15px;
         }
-        .sidenav a {font-size: 18px;}
+
+        .sidenav a {
+            font-size: 18px;
+        }
     }
 
 </style>
@@ -75,7 +83,7 @@
     <h4><span id="day"></span></h4>
 
     <div id="card" class="mdc-card my-card"></div>
-    <p style="color:white;">  Gdelt </p>
+    <p style="color:white;"> Gdelt </p>
 </div>
 
 <div style="background-color:white" , align="center">
@@ -107,10 +115,10 @@
     var country = sessionStorage.getItem("country");
     //get the month
     var monthAndYear = sessionStorage.getItem("monthAndYear");
-    var year = monthAndYear.slice(0,4)
+    var year = monthAndYear.slice(0, 4)
 
-    var month = monthAndYear.slice(5,7)
-    if ( month.startsWith('0')){
+    var month = monthAndYear.slice(5, 7)
+    if (month.startsWith('0')) {
         month = month.slice(1);
     }
     monthAndYear = formatDate(month, year)
@@ -211,7 +219,7 @@
             }
 
             var nested = d3.nest()
-                .key(d=> d['Year'])
+                .key(d => d['Year'])
                 .key(d => d['Month'])
                 .key(d => d['Country'])
                 .key(d => d['Emotion'])
@@ -233,59 +241,64 @@
 
                 for (; i < len; i++) {
 
-                    var card_container = document.createElement('div');
-                    card_container.setAttribute("class", 'mdc-card__primary-action mdc-ripple-upgraded mdc-ripple-upgraded--foreground-activation');
-                    var card_container1 = document.createElement('div');
-                    card_container1.setAttribute("class", 'mdc-card__media mdc-card__media--16-9 my-card__media');
-                    if (title_image[i]) {
-                        var foto = title_image[i];
-                        url1 = 'url(' + foto + ')';
-                        card_container1.style.backgroundImage = url1;
-                    }
-                    card_container.appendChild(card_container1);
-                    var primary = document.createElement('div');
-                    primary.setAttribute("class", 'my-card__primary');
-                    var title = document.createElement('h2');
-                    var newtitle = title_news[i];
-                    if (title_news[i] == "" || title_news[i] == "[None]") {
-                        newtitle = 'Unable to retrive title'
-                    }
-                    var title_text = document.createTextNode(newtitle);
-                    title.setAttribute("class", "my-card__title mdc-typography--headline6");
-                    title.appendChild(title_text);
-                    var author = document.createElement('h3');
-                    if (!title_author[i]) {
-                        var author_text = document.createTextNode(title_author[i]);
-                    }
-                    else {
-                        var author_text = document.createTextNode('')
-                    }
-                    author.setAttribute("class", "my-card__subtitle mdc-typography--subtitle2");
-                    author.appendChild(author_text);
-                    var date = document.createElement('div')
-                    date.setAttribute("class", "demo-card__secondary mdc-typography--body2")
-                    var date_text = document.createTextNode(news_date[i]);
-                    date.appendChild(date_text);
-                    primary.appendChild(title);
-                    primary.appendChild(author);
-                    primary.appendChild(date);
-                    card_container.appendChild(primary);
-                    var card_action = document.createElement('div');
-                    card_action.setAttribute("class", 'my-card__actions');
-                    var card_button = document.createElement('div');
-                    card_button.setAttribute("class", 'mdc-card__action-buttons');
-                    var a_link = document.createElement('a');
-                    var button_text = document.createTextNode('Read');
-                    a_link.setAttribute('href', links[i])
-                    a_link.appendChild(button_text);
-                    a_link.setAttribute("class", 'mdc-button mdc-card__action mdc-card__action--button mdc-ripple-upgraded');
-                    card_button.appendChild(a_link);
-                    card_action.appendChild(card_button);
-                    card_container.appendChild(card_action);
+                    if (title_news[i]) {
+                            var card_container = document.createElement('div');
+                            card_container.setAttribute("class", 'mdc-card__primary-action mdc-ripple-upgraded mdc-ripple-upgraded--foreground-activation');
+                            var card_container1 = document.createElement('div');
+                            card_container1.setAttribute("class", 'mdc-card__media mdc-card__media--16-9 my-card__media');
+                            if (title_image[i]) {
 
-                    var element = document.getElementById("card");
-                    element.appendChild(card_container);
+                                var foto = title_image[i];
+                                foto = foto.replace('[', '');
+                                foto = foto.replace(']', '');
+                                url1 = 'url(' + foto + ')';
+                                card_container1.style.backgroundImage = url1;
+                            }
+                            card_container.appendChild(card_container1);
 
+                            var primary = document.createElement('div');
+                            primary.setAttribute("class", 'my-card__primary');
+
+                            var title = document.createElement('h2');
+                            var newtitle = title_news[i];
+                            newtitle = newtitle.replace('[', '');
+                            newtitle = newtitle.replace(']', '');
+                            var title_text = document.createTextNode(newtitle);
+                            title.setAttribute("class", "my-card__title mdc-typography--headline6");
+                            title.appendChild(title_text);
+                            var author = document.createElement('h3');
+                            if (!title_author[i]) {
+                                var author_text = document.createTextNode(title_author[i]);
+                            }
+                            else {
+                                var author_text = document.createTextNode('')
+                            }
+                            author.setAttribute("class", "my-card__subtitle mdc-typography--subtitle2");
+                            author.appendChild(author_text);
+                            var date = document.createElement('div')
+                            date.setAttribute("class", "demo-card__secondary mdc-typography--body2")
+                            var date_text = document.createTextNode(news_date[i]);
+                            date.appendChild(date_text);
+                            primary.appendChild(title);
+                            primary.appendChild(author);
+                            primary.appendChild(date);
+                            card_container.appendChild(primary);
+                            var card_action = document.createElement('div');
+                            card_action.setAttribute("class", 'my-card__actions');
+                            var card_button = document.createElement('div');
+                            card_button.setAttribute("class", 'mdc-card__action-buttons');
+                            var a_link = document.createElement('a');
+                            var button_text = document.createTextNode('Read');
+                            a_link.setAttribute('href', links[i])
+                            a_link.appendChild(button_text);
+                            a_link.setAttribute("class", 'mdc-button mdc-card__action mdc-card__action--button mdc-ripple-upgraded');
+                            card_button.appendChild(a_link);
+                            card_action.appendChild(card_button);
+                            card_container.appendChild(card_action);
+
+                            var element = document.getElementById("card");
+                            element.appendChild(card_container);
+                    }
                 }
             };
             // https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form
@@ -327,7 +340,6 @@
         ];
         return "" + monthNames[month - 1] + ' ' + year;
     }
-
 
 
 </script>
