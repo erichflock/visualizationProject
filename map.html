@@ -66,7 +66,7 @@
            id="field1"
            max="2018-05"
            min="2017-01"
-           value="2017-01"/>
+           value="2018-01"/>
     <input align="center"
            type="button"
            value="Submit"
@@ -203,7 +203,7 @@
                 }
 
             }
-            updateCountries('2017', '1');
+            updateCountries(datePicker.value.slice(0, 4), datePicker.value.slice(5, 7));
             sumbitButton.addEventListener('click', e => updateCountries(datePicker.value.slice(0, 4), datePicker.value.slice(5, 7)))
         }
 

@@ -82,7 +82,7 @@
         News for <span id="emotion"></span></h2>
     <h4><span id="day"></span></h4>
 
-    <div id="card" class="mdc-card my-card"></div>
+    <div id="card" class="my-card"></div>
     <p style="color:white;"> Gdelt </p>
 </div>
 
@@ -243,7 +243,7 @@
 
                     if (title_news[i]) {
                             var card_container = document.createElement('div');
-                            card_container.setAttribute("class", 'mdc-card__primary-action mdc-ripple-upgraded mdc-ripple-upgraded--foreground-activation');
+                            card_container.setAttribute("class", 'mdc-card mdc-card__primary-action mdc-ripple-upgraded mdc-ripple-upgraded--foreground-activation');
                             var card_container1 = document.createElement('div');
                             card_container1.setAttribute("class", 'mdc-card__media mdc-card__media--16-9 my-card__media');
                             if (title_image[i]) {
@@ -295,6 +295,8 @@
                             card_button.appendChild(a_link);
                             card_action.appendChild(card_button);
                             card_container.appendChild(card_action);
+
+                            card_container.style.cssText = "margin-bottom: 16px;";
 
                             var element = document.getElementById("card");
                             element.appendChild(card_container);
